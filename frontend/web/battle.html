@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>封神榜 - 战斗</title>
+    <link rel="stylesheet" href="css/battle.css">
+</head>
+<body>
+    <div class="battle-container">
+        <header class="battle-header">
+            <div class="turn-info">
+                回合: <span id="turnCount">1</span>
+            </div>
+            <div class="battle-status" id="battleStatus">战斗开始！</div>
+        </header>
+
+        <main class="battle-area">
+            <div class="enemy-side">
+                <div class="enemy-container" id="enemyContainer">
+                </div>
+            </div>
+
+            <div class="battle-effects" id="battleEffects">
+            </div>
+
+            <div class="player-side">
+                <div class="party-container" id="partyContainer">
+                </div>
+            </div>
+        </main>
+
+        <footer class="battle-footer">
+            <div class="action-menu" id="actionMenu">
+                <button class="action-btn" data-action="attack">攻击</button>
+                <button class="action-btn" data-action="skill">技能</button>
+                <button class="action-btn" data-action="item">物品</button>
+                <button class="action-btn" data-action="defend">防御</button>
+                <button class="action-btn" data-action="flee">逃跑</button>
+            </div>
+
+            <div class="skill-menu hidden" id="skillMenu">
+                <div class="skill-list" id="skillList">
+                </div>
+                <button class="back-btn" id="skillBackBtn">返回</button>
+            </div>
+
+            <div class="item-menu hidden" id="itemMenu">
+                <div class="item-list" id="itemList">
+                </div>
+                <button class="back-btn" id="itemBackBtn">返回</button>
+            </div>
+
+            <div class="battle-log" id="battleLog">
+            </div>
+        </footer>
+    </div>
+
+    <div class="victory-screen hidden" id="victoryScreen">
+        <div class="victory-content">
+            <h2>战斗胜利！</h2>
+            <div class="rewards">
+                <p>获得经验: <span id="expGained">0</span></p>
+                <p>获得金币: <span id="goldGained">0</span></p>
+                <div class="item-drops" id="itemDrops"></div>
+            </div>
+            <button class="continue-btn" id="continueBtn">继续</button>
+        </div>
+    </div>
+
+    <div class="defeat-screen hidden" id="defeatScreen">
+        <div class="defeat-content">
+            <h2>战斗失败</h2>
+            <p>队伍被击败了...</p>
+            <button class="retry-btn" id="retryBtn">重试</button>
+        </div>
+    </div>
+
+    <script src="js/http-client.js"></script>
+    <script src="js/auth-service.js"></script>
+    <script src="js/battle.js"></script>
+</body>
+</html>

@@ -1,0 +1,426 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Microsoft YaHei', '微软雅黑', sans-serif;
+    background: linear-gradient(180deg, #0a0505 0%, #1a0a0a 50%, #0a0505 100%);
+    color: #fff;
+    min-height: 100vh;
+    overflow: hidden;
+}
+
+.battle-container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.battle-header {
+    background: rgba(0, 0, 0, 0.8);
+    border-bottom: 2px solid #8b4513;
+    padding: 10px 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.turn-info {
+    color: #ffd700;
+    font-size: 16px;
+}
+
+.battle-status {
+    color: #ff6b6b;
+    font-size: 14px;
+    animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+}
+
+.battle-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect fill="%23111" width="100" height="100"/><circle fill="%231a1a1a" cx="25" cy="75" r="20" opacity="0.3"/><circle fill="%231a1a1a" cx="75" cy="75" r="15" opacity="0.3"/></svg>');
+    background-size: cover;
+}
+
+.enemy-side {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: flex-end;
+    padding-bottom: 20px;
+}
+
+.enemy-container {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.enemy-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    transition: all 0.3s;
+}
+
+.enemy-unit.targeted {
+    transform: scale(1.1);
+}
+
+.enemy-unit.dead {
+    opacity: 0.3;
+    filter: grayscale(100%);
+}
+
+.enemy-sprite {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #4a0000, #2a0000);
+    border: 2px solid #8b0000;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin-bottom: 10px;
+    position: relative;
+}
+
+.enemy-name {
+    color: #ff6b6b;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.enemy-hp-bar {
+    width: 80px;
+    height: 8px;
+    background: #333;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.enemy-hp-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff4444, #cc0000);
+    transition: width 0.3s;
+}
+
+.battle-effects {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+}
+
+.damage-number {
+    position: absolute;
+    font-size: 24px;
+    font-weight: bold;
+    animation: damageFloat 1s forwards;
+}
+
+.damage-number.player {
+    color: #ff6b6b;
+}
+
+.damage-number.enemy {
+    color: #ffd700;
+}
+
+.damage-number.heal {
+    color: #90ee90;
+}
+
+@keyframes damageFloat {
+    0% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    100% {
+        opacity: 0;
+        transform: translateY(-50px);
+    }
+}
+
+.player-side {
+    display: flex;
+    justify-content: center;
+    padding: 20px;
+    background: linear-gradient(180deg, transparent, rgba(0, 0, 0, 0.5));
+}
+
+.party-container {
+    display: flex;
+    gap: 20px;
+}
+
+.party-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #8b4513;
+    border-radius: 8px;
+    min-width: 120px;
+}
+
+.party-unit.active {
+    border-color: #ffd700;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+.party-unit.dead {
+    opacity: 0.5;
+}
+
+.party-avatar {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #8b0000, #5c0000);
+    border: 2px solid #ffd700;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    color: #ffd700;
+    margin-bottom: 8px;
+}
+
+.party-name {
+    color: #fff;
+    font-size: 12px;
+    margin-bottom: 5px;
+}
+
+.party-hp, .party-mp {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    margin-bottom: 3px;
+}
+
+.party-hp label, .party-mp label {
+    width: 25px;
+    font-size: 10px;
+    color: #999;
+}
+
+.party-hp .bar, .party-mp .bar {
+    flex: 1;
+    height: 6px;
+    background: #333;
+    border-radius: 3px;
+    overflow: hidden;
+}
+
+.party-hp .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff4444, #cc0000);
+}
+
+.party-mp .bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #4444ff, #0000cc);
+}
+
+.battle-footer {
+    background: linear-gradient(180deg, #2a1510 0%, #1a0a0a 100%);
+    border-top: 2px solid #8b4513;
+    padding: 15px;
+}
+
+.action-menu, .skill-menu, .item-menu {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 10px;
+}
+
+.action-menu.hidden, .skill-menu.hidden, .item-menu.hidden {
+    display: none;
+}
+
+.action-btn {
+    padding: 12px 24px;
+    background: linear-gradient(180deg, #2a1510 0%, #1a0a0a 100%);
+    border: 2px solid #8b4513;
+    border-radius: 8px;
+    color: #c9a959;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.action-btn:hover:not(:disabled) {
+    border-color: #ffd700;
+    color: #ffd700;
+    box-shadow: 0 0 15px rgba(255, 215, 0, 0.3);
+}
+
+.action-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.skill-list, .item-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    flex: 1;
+}
+
+.skill-item, .item-btn {
+    padding: 10px 15px;
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #8b4513;
+    border-radius: 5px;
+    color: #c9a959;
+    font-size: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.skill-item:hover, .item-btn:hover {
+    border-color: #ffd700;
+    color: #ffd700;
+}
+
+.back-btn {
+    padding: 10px 20px;
+    background: transparent;
+    border: 1px solid #666;
+    color: #999;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.back-btn:hover {
+    border-color: #999;
+    color: #fff;
+}
+
+.battle-log {
+    background: rgba(0, 0, 0, 0.5);
+    border: 1px solid #333;
+    border-radius: 5px;
+    padding: 10px;
+    max-height: 80px;
+    overflow-y: auto;
+    font-size: 12px;
+}
+
+.battle-log p {
+    margin-bottom: 3px;
+    color: #999;
+}
+
+.battle-log .player-action {
+    color: #90ee90;
+}
+
+.battle-log .enemy-action {
+    color: #ff6b6b;
+}
+
+.battle-log .system-message {
+    color: #ffd700;
+}
+
+.victory-screen, .defeat-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.victory-screen.hidden, .defeat-screen.hidden {
+    display: none;
+}
+
+.victory-content, .defeat-content {
+    background: linear-gradient(180deg, #2a1510 0%, #1a0a0a 100%);
+    border: 2px solid #ffd700;
+    border-radius: 10px;
+    padding: 40px;
+    text-align: center;
+}
+
+.victory-content h2 {
+    color: #ffd700;
+    font-size: 32px;
+    margin-bottom: 20px;
+    text-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+}
+
+.defeat-content h2 {
+    color: #ff6b6b;
+    font-size: 32px;
+    margin-bottom: 20px;
+}
+
+.rewards {
+    margin-bottom: 20px;
+}
+
+.rewards p {
+    color: #c9a959;
+    font-size: 16px;
+    margin-bottom: 10px;
+}
+
+.item-drops {
+    margin-top: 15px;
+}
+
+.continue-btn, .retry-btn {
+    padding: 15px 40px;
+    background: linear-gradient(180deg, #8b0000 0%, #5c0000 100%);
+    border: 2px solid #ffd700;
+    border-radius: 8px;
+    color: #ffd700;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.continue-btn:hover, .retry-btn:hover {
+    box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+}
+
+@media (max-width: 600px) {
+    .enemy-sprite {
+        width: 60px;
+        height: 60px;
+        font-size: 24px;
+    }
+    
+    .party-unit {
+        min-width: 100px;
+    }
+    
+    .action-btn {
+        padding: 10px 16px;
+        font-size: 12px;
+    }
+}
