@@ -330,13 +330,14 @@
             
             if(gamePlayer.moving) {
                 var newX = gamePlayer.x + dx, newY = gamePlayer.y + dy;
-                var tx = Math.floor((newX + 16) / TILE_SIZE), ty = Math.floor((newY + 40) / TILE_SIZE);
+                var tx = Math.floor(newX / TILE_SIZE), ty = Math.floor((newY + 24) / TILE_SIZE);
                 if(!isBlocked(tx, ty)) gamePlayer.x = newX;
-                var tx2 = Math.floor((gamePlayer.x + 16) / TILE_SIZE), ty2 = Math.floor((newY + 40) / TILE_SIZE);
+                var tx2 = Math.floor(gamePlayer.x / TILE_SIZE), ty2 = Math.floor((newY + 24) / TILE_SIZE);
                 if(!isBlocked(tx2, ty2)) gamePlayer.y = newY;
                 checkExits(); checkTreasures(); checkNPCs();
             }
-            var targetX = gamePlayer.x - 400 + 16, targetY = gamePlayer.y - 240 + 24;
+            var targetX = gamePlayer.x - 400 + 16;
+            var targetY = gamePlayer.y - 240 + 24;
             camera.x += (targetX - camera.x) * 0.1;
             camera.y += (targetY - camera.y) * 0.1;
             camera.x = Math.max(0, Math.min(camera.x, currentMap[0].length * TILE_SIZE - 800));
@@ -344,7 +345,8 @@
         }
         
         function checkExits() {
-            var ptx = Math.floor((gamePlayer.x + 16) / TILE_SIZE), pty = Math.floor((gamePlayer.y + 40) / TILE_SIZE);
+            var ptx = Math.floor(gamePlayer.x / TILE_SIZE);
+            var pty = Math.floor((gamePlayer.y + 24) / TILE_SIZE);
             for(var i=0; i<exits.length; i++) {
                 var ex = exits[i];
                 if(ptx === ex.x && pty === ex.y) {
@@ -362,7 +364,8 @@
         
         function checkTreasures() {
             if(!treasureData[currentMapId]) return;
-            var ptx = Math.floor((gamePlayer.x + 16) / TILE_SIZE), pty = Math.floor((gamePlayer.y + 40) / TILE_SIZE);
+            var ptx = Math.floor(gamePlayer.x / TILE_SIZE);
+            var pty = Math.floor((gamePlayer.y + 24) / TILE_SIZE);
             var treasures = treasureData[currentMapId];
             for(var i=0; i<treasures.length; i++) {
                 var t = treasures[i];
@@ -383,7 +386,8 @@
         
         function checkNPCs() {
             if(keys[' ']) {
-                var ptx = Math.floor((gamePlayer.x + 16) / TILE_SIZE), pty = Math.floor((gamePlayer.y + 40) / TILE_SIZE);
+                var ptx = Math.floor(gamePlayer.x / TILE_SIZE);
+                var pty = Math.floor((gamePlayer.y + 24) / TILE_SIZE);
                 for(var i=0; i<npcs.length; i++) {
                     var npc = npcs[i];
                     var dist = Math.abs(npc.x - ptx) + Math.abs(npc.y - pty);
