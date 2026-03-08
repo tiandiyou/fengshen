@@ -1,0 +1,47 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.idea/
+.vscode/
+*.iml
+*.swp
+*.swo
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-error.log
+
+# Java
+*.class
+*.jar
+*.war
+target/
+.mvn/wrapper/maven-wrapper.jar
+
+# Logs
+logs/
+*.log
+
+# Temp
+*.tmp
+*.temp
+.cache/
+
+# Build
+dist/
+build/
+out/
+
+# Cocos Creator
+library/
+temp/
+local/
+build/
+*.meta
+
+# Environment
+.env
+.env.local
