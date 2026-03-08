@@ -1,0 +1,31 @@
+export const SKILL_CONFIG = {
+    XIAO_LONG_NV: [
+        { id: 'ti_shen_shu', name: '提神术', level: 12, mpCost: 3, type: 'HEAL', target: 'SINGLE', baseValue: 17, levelScale: 3 },
+        { id: 'jie_du_shu', name: '解毒术', level: 12, mpCost: 3, type: 'UTILITY', target: 'SINGLE', effect: 'CURE_POISON' },
+        { id: 'huan_yuan_shu', name: '还原术', level: 15, mpCost: 4, type: 'UTILITY', target: 'SINGLE', effect: 'CURE_CONFUSION' },
+        { id: 'rao_hun_shu', name: '扰魂术', level: 20, mpCost: 6, type: 'DAMAGE', target: 'SINGLE', baseValue: 114, levelScale: 6 },
+        { id: 'yang_shen_shu', name: '养神术', level: 25, mpCost: 12, type: 'HEAL', target: 'SINGLE', baseValue: 290, levelScale: 10 },
+        { id: 'qu_yao_shu', name: '驱妖术', level: 30, mpCost: 10, type: 'UTILITY', target: 'SELF', effect: 'PREVENT_ENCOUNTER' },
+        { id: 'rong_shi_shu', name: '溶石术', level: 35, mpCost: 20, type: 'UTILITY', target: 'SINGLE', effect: 'CURE_STONE' },
+        { id: 'she_hun_shu', name: '摄魂术', level: 43, mpCost: 40, type: 'DAMAGE', target: 'ALL_ENEMIES', baseValue: 680, levelScale: 20 },
+        { id: 'hui_shen_shu', name: '回神术', level: 50, mpCost: 50, type: 'HEAL', target: 'SINGLE', baseValue: 1970, levelScale: 30 },
+        { id: 'fu_huo_shu', name: '复活术', level: 57, mpCost: 80, type: 'UTILITY', target: 'SINGLE', effect: 'REVIVE' },
+    ],
+    YANG_JIAN: [
+        { id: 'huan_zhuo_ji', name: '幻啄鸡', level: 24, mpCost: 4, type: 'DAMAGE', target: 'SINGLE', baseValue: 196, levelScale: 4 },
+        { id: 'ying_xiang_shu', name: '映像术', level: 24, mpCost: 6, type: 'UTILITY', target: 'SELF', effect: 'SHOW_MAP' },
+        { id: 'huan_du_gong', name: '幻毒蚣', level: 25, mpCost: 8, type: 'DAMAGE', target: 'SINGLE', baseValue: 392, levelScale: 8 },
+        { id: 'tiao_yue_shu', name: '跳跃术', level: 30, mpCost: 10, type: 'UTILITY', target: 'SELF', effect: 'ESCAPE' },
+        { id: 'huan_lei_gong', name: '幻雷公', level: 35, mpCost: 20, type: 'DAMAGE', target: 'ALL_ENEMIES', baseValue: 592, levelScale: 8 },
+        { id: 'huan_shi_jiang', name: '幻石匠', level: 41, mpCost: 25, type: 'DEBUFF', target: 'SINGLE', effect: 'STONE' },
+        { id: 'huan_di_niu', name: '幻地牛', level: 47, mpCost: 35, type: 'DAMAGE', target: 'ALL_ENEMIES', baseValue: 376, levelScale: 24 },
+        { id: 'huan_huo_long', name: '幻火龙', level: 54, mpCost: 50, type: 'DAMAGE', target: 'ALL_ENEMIES', baseValue: 1242, levelScale: 28 },
+    ],
+    JIANG_ZI_YA: [
+        { id: 'hun_shui_shu', name: '昏睡术', level: 38, mpCost: 4, type: 'DEBUFF', target: 'SINGLE', effect: 'SLEEP' },
+        { id: 'ling_ying_shu', name: '凌鹰术', level: 38, mpCost: 6, type: 'UTILITY', target: 'SELF', effect: 'TELEPORT' },
+        { id: 'tian_gang_shu', name: '天罡术', level: 38, mpCost: 5, type: 'BUFF', target: 'SINGLE', effect: 'BUFF_ATK_DEF' },
+        { id: 'feng_mo_shu', name: '封魔术', level: 38, mpCost: 8, type: 'DEBUFF', target: 'SINGLE', effect: 'SILENCE' },
+        { id: 'ji_bing_shu', name: '疾兵术', level: 38, mpCost: 5, type: 'BUFF', target: 'SINGLE', effect: 'BUFF_ATK_DEF' },
+    ],
+};
