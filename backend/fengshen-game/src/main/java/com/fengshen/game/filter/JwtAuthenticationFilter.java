@@ -1,4 +1,4 @@
-package com.fengshen.user.filter;
+package com.fengshen.game.filter;
 
 import com.fengshen.common.constant.SecurityConstants;
 import com.fengshen.common.util.JwtUtil;
