@@ -24,16 +24,12 @@
             border-bottom: 2px solid #8b4513;
         }
         #game-container {
-            position: relative;
             width: 800px;
             height: 480px;
             border: 3px solid #8b4513;
             box-shadow: 0 0 30px rgba(139, 69, 19, 0.5);
         }
-        #game-canvas {
-            display: block;
-            background: #1a1a1a;
-        }
+        canvas { display: block; }
         #controls-hint {
             width: 800px;
             padding: 15px;
@@ -47,138 +43,260 @@
             background: rgba(139, 69, 19, 0.3);
             border-radius: 5px;
         }
+        #error-msg {
+            color: #ff6b6b;
+            padding: 10px;
+            display: none;
+        }
     </style>
 </head>
 <body>
     <div id="game-header">
         <div>封神榜 - 伏魔三太子</div>
-        <div id="location-name">陈塘关</div>
+        <div id="location-name">加载中...</div>
     </div>
     <div id="game-container">
-        <canvas id="game-canvas" width="800" height="480"></canvas>
+        <canvas id="game-canvas"></canvas>
     </div>
     <div id="controls-hint">
         <span>↑↓←→ 或 WASD 移动</span>
         <span>空格键 与NPC对话</span>
-        <span>ESC 返回菜单</span>
     </div>
+    <div id="error-msg"></div>
 
-    <script src="js/game/GameEngine.js"></script>
-    <script src="js/game/Sprite.js"></script>
-    <script src="js/game/TileMap.js"></script>
     <script src="js/game/MapData.js"></script>
-    <script src="js/game/PlayerController.js"></script>
     <script>
-        class GameScene {
-            constructor() {
-                this.engine = null;
-                this.map = null;
-                this.player = null;
-                this.camera = { x: 0, y: 0 };
-                this.dialogue = null;
-            }
-
-            init(engine) {
-                this.engine = engine;
-                this.player = new NeZhaSprite({
-                    id: 'player',
-                    name: '哪吒',
-                    x: 12 * 32,
-                    y: 10 * 32
-                });
-                this.playerController = new PlayerController(this.player, engine);
-                this.loadMap('chen_tang_guan');
-            }
-
-            loadMap(mapId) {
-                const mapConfig = MapData[mapId];
-                if (mapConfig) {
-                    this.map = new TileMap(mapConfig);
-                    document.getElementById('location-name').textContent = this.map.name;
+    (function() {
+        try {
+            var canvas = document.getElementById('game-canvas');
+            canvas.width = 800;
+            canvas.height = 480;
+            var ctx = canvas.getContext('2d');
+            
+            var keys = {};
+            window.addEventListener('keydown', function(e) {
+                keys[e.key] = true;
+                if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].indexOf(e.key) >= 0) e.preventDefault();
+            });
+            window.addEventListener('keyup', function(e) { keys[e.key] = false; });
+            
+            var TILE_SIZE = 32;
+            
+            var tileColors = {
+                0: '#2d5a27', 1: '#8b4513', 2: '#4682b4', 3: '#808080', 
+                4: '#1a1a1a', 5: '#8b0000', 8: '#228b22'
+            };
+            
+            function drawTile(offsetX, offsetY, type) {
+                var color = tileColors[type] || tileColors[0];
+                ctx.fillStyle = color;
+                ctx.fillRect(offsetX, offsetY, TILE_SIZE, TILE_SIZE);
+                ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+                ctx.strokeRect(offsetX, offsetY, TILE_SIZE, TILE_SIZE);
+                
+                if(type === 0) {
+                    ctx.fillStyle = '#1a4a14';
+                    for(var i=0; i<3; i++) {
+                        ctx.fillRect(offsetX + 5 + Math.random()*20, offsetY + 5 + Math.random()*20, 2, 4);
+                    }
                 }
             }
-
-            changeMap(mapId, targetX, targetY) {
-                this.loadMap(mapId);
-                this.player.x = targetX * 32;
-                this.player.y = targetY * 32;
+            
+            function drawNPC(npc, offsetX, offsetY) {
+                ctx.fillStyle = npc.color || '#ff69b4';
+                ctx.beginPath();
+                ctx.arc(offsetX + 16, offsetY + 16, 12, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#fff';
+                ctx.beginPath();
+                ctx.arc(offsetX + 12, offsetY + 14, 2, 0, Math.PI * 2);
+                ctx.arc(offsetX + 20, offsetY + 14, 2, 0, Math.PI * 2);
+                ctx.fill();
             }
-
-            update(dt) {
-                if (this.dialogue) {
-                    if (this.engine.isKeyPressed(' ') || this.engine.isKeyPressed('Enter')) {
-                        this.dialogue.index++;
-                        if (this.dialogue.index >= this.dialogue.lines.length) {
-                            this.dialogue = null;
-                        }
+            
+            function drawPlayer(px, py, dir, moving, frame) {
+                var bob = moving ? Math.sin(frame * Math.PI / 2) * 2 : 0;
+                var screenX = px - camera.x;
+                var screenY = py - camera.y;
+                
+                ctx.fillStyle = '#8b4513';
+                ctx.beginPath();
+                ctx.ellipse(screenX + 16, screenY + 44 - bob, 12, 6, 0, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#cc0000';
+                ctx.beginPath();
+                ctx.arc(screenX + 16, screenY + 14 - bob, 10, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#ffe4c4';
+                ctx.beginPath();
+                ctx.arc(screenX + 16, screenY + 8 - bob, 8, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#000';
+                var eyeOff = 0;
+                if(dir === 'left') eyeOff = -2;
+                if(dir === 'right') eyeOff = 2;
+                if(dir !== 'up') {
+                    ctx.beginPath();
+                    ctx.arc(screenX + 13 + eyeOff, screenY + 7 - bob, 1.5, 0, Math.PI * 2);
+                    ctx.arc(screenX + 19 + eyeOff, screenY + 7 - bob, 1.5, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                
+                ctx.fillStyle = '#cc0000';
+                ctx.fillRect(screenX + 4, screenY + 22 - bob, 24, 20);
+                
+                var legOff = moving ? Math.sin(frame * Math.PI / 2) * 4 : 0;
+                ctx.fillStyle = '#8b4513';
+                ctx.fillRect(screenX + 8, screenY + 40 - bob, 6, 8 + legOff*0.5);
+                ctx.fillRect(screenX + 18, screenY + 40 - bob, 6, 8 - legOff*0.5);
+            }
+            
+            function isBlocked(tx, ty) {
+                if(tx < 0 || tx >= currentMap[0].length || ty < 0 || ty >= currentMap.length) return true;
+                var tile = currentMap[ty][tx];
+                return tile === 1 || tile === 2 || tile === 4 || tile === 8;
+            }
+            
+            var currentMapId = 'chen_tang_guan';
+            var currentMap = MapData[currentMapId].tiles;
+            var npcs = MapData[currentMapId].npcs || [];
+            var exits = MapData[currentMapId].exits || [];
+            
+            var player = { x: 12 * 32, y: 10 * 32, dir: 'down', moving: false };
+            var camera = { x: 0, y: 0 };
+            var dialogue = null;
+            var lastTime = 0;
+            
+            function update(dt) {
+                if(dialogue) {
+                    if(keys[' '] || keys['Enter']) {
+                        dialogue.index++;
+                        if(dialogue.index >= dialogue.lines.length) dialogue = null;
                     }
                     return;
                 }
-
-                this.playerController.update(dt, this.map);
-                this.player.update(dt, this.map);
-                this.updateCamera();
+                
+                var dx = 0, dy = 0;
+                var speed = 3;
+                
+                if(keys['ArrowUp'] || keys['w'] || keys['W']) { dy = -speed; player.dir = 'up'; }
+                if(keys['ArrowDown'] || keys['s'] || keys['S']) { dy = speed; player.dir = 'down'; }
+                if(keys['ArrowLeft'] || keys['a'] || keys['A']) { dx = -speed; player.dir = 'left'; }
+                if(keys['ArrowRight'] || keys['d'] || keys['D']) { dx = speed; player.dir = 'right'; }
+                
+                if(dx !== 0 && dy !== 0) { dx *= 0.707; dy *= 0.707; }
+                player.moving = dx !== 0 || dy !== 0;
+                
+                if(player.moving) {
+                    var newX = player.x + dx;
+                    var newY = player.y + dy;
+                    var tx = Math.floor((newX + 16) / TILE_SIZE);
+                    var ty = Math.floor((newY + 40) / TILE_SIZE);
+                    if(!isBlocked(tx, ty)) player.x = newX;
+                    var tx2 = Math.floor((player.x + 16) / TILE_SIZE);
+                    var ty2 = Math.floor((newY + 40) / TILE_SIZE);
+                    if(!isBlocked(tx2, ty2)) player.y = newY;
+                    
+                    var ptx = Math.floor((player.x + 16) / TILE_SIZE);
+                    var pty = Math.floor((player.y + 40) / TILE_SIZE);
+                    for(var i=0; i<exits.length; i++) {
+                        var ex = exits[i];
+                        if(ptx === ex.x && pty === ex.y) {
+                            currentMapId = ex.targetMap;
+                            currentMap = MapData[currentMapId].tiles;
+                            npcs = MapData[currentMapId].npcs || [];
+                            exits = MapData[currentMapId].exits || [];
+                            player.x = ex.targetX * TILE_SIZE;
+                            player.y = ex.targetY * TILE_SIZE;
+                            document.getElementById('location-name').textContent = MapData[currentMapId].name;
+                            break;
+                        }
+                    }
+                }
+                
+                var targetX = player.x - 400 + 16;
+                var targetY = player.y - 240 + 24;
+                camera.x += (targetX - camera.x) * 0.1;
+                camera.y += (targetY - camera.y) * 0.1;
+                camera.x = Math.max(0, Math.min(camera.x, currentMap[0].length * TILE_SIZE - 800));
+                camera.y = Math.max(0, Math.min(camera.y, currentMap.length * TILE_SIZE - 480));
             }
-
-            updateCamera() {
-                const targetX = this.player.x - this.engine.width / 2 + 16;
-                const targetY = this.player.y - this.engine.height / 2 + 24;
-                this.camera.x += (targetX - this.camera.x) * 0.1;
-                this.camera.y += (targetY - this.camera.y) * 0.1;
-                const maxCameraX = this.map.width * this.map.tileSize - this.engine.width;
-                const maxCameraY = this.map.height * this.map.tileSize - this.engine.height;
-                this.camera.x = Math.max(0, Math.min(this.camera.x, maxCameraX));
-                this.camera.y = Math.max(0, Math.min(this.camera.y, maxCameraY));
-            }
-
-            render(ctx) {
-                if (!this.map) return;
-                this.map.render(ctx, this.camera.x, this.camera.y);
-                this.player.render(ctx, this.camera.x, this.camera.y);
-                this.renderUI(ctx);
-                if (this.dialogue) this.renderDialogue(ctx);
-            }
-
-            renderUI(ctx) {
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+            
+            var frameCount = 0;
+            function render() {
+                ctx.fillStyle = '#1a0a0a';
+                ctx.fillRect(0, 0, 800, 480);
+                
+                var startX = Math.floor(camera.x / TILE_SIZE);
+                var startY = Math.floor(camera.y / TILE_SIZE);
+                var endX = Math.min(startX + 27, currentMap[0].length);
+                var endY = Math.min(startY + 16, currentMap.length);
+                
+                for(var y = Math.max(0, startY); y < endY; y++) {
+                    for(var x = Math.max(0, startX); x < endX; x++) {
+                        drawTile(x * TILE_SIZE - camera.x, y * TILE_SIZE - camera.y, currentMap[y][x]);
+                    }
+                }
+                
+                for(var i=0; i<npcs.length; i++) {
+                    var npc = npcs[i];
+                    drawNPC(npc, npc.x * TILE_SIZE - camera.x, npc.y * TILE_SIZE - camera.y);
+                }
+                
+                drawPlayer(player.x, player.y, player.dir, player.moving, frameCount);
+                
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
                 ctx.fillRect(10, 10, 120, 45);
                 ctx.strokeStyle = '#ffd700';
                 ctx.strokeRect(10, 10, 120, 45);
                 ctx.fillStyle = '#ffd700';
                 ctx.font = '14px Microsoft YaHei';
-                ctx.fillText(this.map.name, 20, 30);
+                ctx.fillText(MapData[currentMapId].name, 20, 30);
                 ctx.fillStyle = '#fff';
                 ctx.font = '12px Microsoft YaHei';
                 ctx.fillText('等级: 1', 20, 48);
+                
+                if(dialogue) {
+                    var boxY = 360;
+                    ctx.fillStyle = 'rgba(0,0,0,0.9)';
+                    ctx.fillRect(20, boxY, 760, 100);
+                    ctx.strokeStyle = '#ffd700';
+                    ctx.lineWidth = 2;
+                    ctx.strokeRect(20, boxY, 760, 100);
+                    ctx.fillStyle = '#ffd700';
+                    ctx.font = 'bold 14px Microsoft YaHei';
+                    ctx.fillText(dialogue.name, 40, boxY + 25);
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '14px Microsoft YaHei';
+                    ctx.fillText(dialogue.lines[dialogue.index], 40, boxY + 55);
+                    ctx.fillStyle = '#888';
+                    ctx.font = '12px Microsoft YaHei';
+                    ctx.fillText('按空格键继续...', 650, boxY + 85);
+                }
+                
+                frameCount++;
             }
-
-            renderDialogue(ctx) {
-                const boxY = this.engine.height - 120;
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
-                ctx.fillRect(20, boxY, this.engine.width - 40, 100);
-                ctx.strokeStyle = '#ffd700';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(20, boxY, this.engine.width - 40, 100);
-                ctx.fillStyle = '#ffd700';
-                ctx.font = 'bold 14px Microsoft YaHei';
-                ctx.fillText(this.dialogue.name, 40, boxY + 25);
-                ctx.fillStyle = '#fff';
-                ctx.font = '14px Microsoft YaHei';
-                ctx.fillText(this.dialogue.lines[this.dialogue.index], 40, boxY + 55);
-                ctx.fillStyle = '#888';
-                ctx.font = '12px Microsoft YaHei';
-                ctx.fillText('按空格键继续...', this.engine.width - 130, boxY + 85);
+            
+            function gameLoop(time) {
+                var dt = time - lastTime;
+                lastTime = time;
+                update(dt);
+                render();
+                requestAnimationFrame(gameLoop);
             }
-
-            showDialogue(npc) {
-                this.dialogue = { name: npc.name, lines: npc.dialogue || ['...'], index: 0 };
-            }
+            
+            document.getElementById('location-name').textContent = MapData[currentMapId].name;
+            requestAnimationFrame(gameLoop);
+            
+        } catch(e) {
+            document.getElementById('error-msg').style.display = 'block';
+            document.getElementById('error-msg').textContent = 'Error: ' + e.message;
+            console.error(e);
         }
-
-        const engine = new GameEngine('game-canvas');
-        const scene = new GameScene();
-        engine.setScene(scene);
-        engine.start();
+    })();
     </script>
 </body>
 </html>
