@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>封神榜 - 游戏主界面</title>
+    <link rel="stylesheet" href="css/game.css">
+</head>
+<body>
+    <div class="game-container">
+        <header class="game-header">
+            <div class="player-info">
+                <span id="playerName">玩家</span>
+                <span class="separator">|</span>
+                <span>等级: <span id="playerLevel">1</span></span>
+                <span class="separator">|</span>
+                <span>金币: <span id="playerGold">0</span></span>
+            </div>
+            <div class="header-actions">
+                <button id="saveBtn" class="header-btn">存档</button>
+                <button id="logoutBtn" class="header-btn">退出</button>
+            </div>
+        </header>
+
+        <main class="game-main">
+            <aside class="left-panel">
+                <div class="character-status">
+                    <h3>角色状态</h3>
+                    <div class="character-avatar" id="characterAvatar">哪吒</div>
+                    <div class="status-bars">
+                        <div class="status-bar">
+                            <label>HP</label>
+                            <div class="bar hp-bar">
+                                <div class="bar-fill" id="hpBar" style="width: 100%"></div>
+                            </div>
+                            <span id="hpText">120/120</span>
+                        </div>
+                        <div class="status-bar">
+                            <label>MP</label>
+                            <div class="bar mp-bar">
+                                <div class="bar-fill" id="mpBar" style="width: 100%"></div>
+                            </div>
+                            <span id="mpText">60/60</span>
+                        </div>
+                        <div class="status-bar">
+                            <label>EXP</label>
+                            <div class="bar exp-bar">
+                                <div class="bar-fill" id="expBar" style="width: 0%"></div>
+                            </div>
+                            <span id="expText">0/100</span>
+                        </div>
+                    </div>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <span class="stat-label">攻击</span>
+                            <span class="stat-value" id="attackValue">13</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">防御</span>
+                            <span class="stat-value" id="defenseValue">7</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">敏捷</span>
+                            <span class="stat-value" id="agilityValue">11</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">体能</span>
+                            <span class="stat-value" id="staminaValue">11</span>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <section class="game-area">
+                <div class="location-header">
+                    <h2 id="currentLocation">陈塘关</h2>
+                    <p class="chapter-info">第 <span id="currentChapter">1</span> 章</p>
+                </div>
+                
+                <div class="game-view" id="gameView">
+                    <div class="location-description" id="locationDescription">
+                        陈塘关，位于东海之滨，是哪吒的故乡。
+                    </div>
+                    <div class="action-buttons" id="actionButtons">
+                        <button class="action-btn" data-action="explore">探索</button>
+                        <button class="action-btn" data-action="talk">对话</button>
+                        <button class="action-btn" data-action="shop">商店</button>
+                        <button class="action-btn" data-action="rest">休息</button>
+                    </div>
+                </div>
+
+                <div class="message-log" id="messageLog">
+                    <p class="system-message">欢迎来到封神榜的世界！</p>
+                </div>
+            </section>
+
+            <aside class="right-panel">
+                <div class="party-members">
+                    <h3>队伍成员</h3>
+                    <div class="member-list" id="memberList">
+                        <div class="member-item active">
+                            <div class="member-avatar">哪</div>
+                            <div class="member-info">
+                                <span class="member-name">哪吒</span>
+                                <span class="member-level">Lv.1</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="quick-actions">
+                    <h3>快捷操作</h3>
+                    <button class="quick-btn" id="inventoryBtn">背包</button>
+                    <button class="quick-btn" id="skillsBtn">技能</button>
+                    <button class="quick-btn" id="mapBtn">地图</button>
+                    <button class="quick-btn" id="questBtn">任务</button>
+                </div>
+            </aside>
+        </main>
+    </div>
+
+    <div class="modal hidden" id="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">标题</h3>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody">
+            </div>
+        </div>
+    </div>
+
+    <script src="js/http-client.js"></script>
+    <script src="js/auth-service.js"></script>
+    <script src="js/game-api.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html>
