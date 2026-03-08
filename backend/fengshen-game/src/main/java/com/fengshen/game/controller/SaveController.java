@@ -27,7 +27,7 @@ public class SaveController {
     }
 
     @GetMapping("/{id}")
-    public R<Map<String, Object>> getSaveDetail(@PathVariable Long id, @RequestAttribute("userId") Long userId) {
+    public R<Map<String, Object>> getSaveDetail(@PathVariable("id") Long id, @RequestAttribute("userId") Long userId) {
         GameSave save = gameSaveService.getSaveById(id, userId);
         if (save == null) {
             return R.error("存档不存在");
@@ -47,7 +47,7 @@ public class SaveController {
     }
 
     @PutMapping("/{id}")
-    public R<GameSave> updateSave(@PathVariable Long id, @RequestAttribute("userId") Long userId,
+    public R<GameSave> updateSave(@PathVariable("id") Long id, @RequestAttribute("userId") Long userId,
                                   @RequestBody UpdateSaveRequest request) {
         try {
             GameSave save = gameSaveService.updateSave(id, userId, request.getChapter(),
@@ -59,7 +59,7 @@ public class SaveController {
     }
 
     @DeleteMapping("/{id}")
-    public R<Void> deleteSave(@PathVariable Long id, @RequestAttribute("userId") Long userId) {
+    public R<Void> deleteSave(@PathVariable("id") Long id, @RequestAttribute("userId") Long userId) {
         try {
             gameSaveService.deleteSave(id, userId);
             return R.ok(null);

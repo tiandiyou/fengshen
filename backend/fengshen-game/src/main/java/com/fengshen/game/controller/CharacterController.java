@@ -18,13 +18,13 @@ public class CharacterController {
     }
 
     @GetMapping
-    public R<List<CharacterData>> getCharacters(@RequestParam Long saveId) {
+    public R<List<CharacterData>> getCharacters(@RequestParam("saveId") Long saveId) {
         List<CharacterData> characters = characterService.getCharactersBySaveId(saveId);
         return R.ok(characters);
     }
 
     @GetMapping("/{id}")
-    public R<CharacterData> getCharacter(@PathVariable Long id) {
+    public R<CharacterData> getCharacter(@PathVariable("id") Long id) {
         CharacterData character = characterService.getCharacter(id, null);
         if (character == null) {
             return R.error("角色不存在");
@@ -33,7 +33,7 @@ public class CharacterController {
     }
 
     @PutMapping("/{id}")
-    public R<CharacterData> updateCharacter(@PathVariable Long id, @RequestBody UpdateCharacterRequest request) {
+    public R<CharacterData> updateCharacter(@PathVariable("id") Long id, @RequestBody UpdateCharacterRequest request) {
         try {
             CharacterData character = characterService.updateCharacter(id, request.getLevel(),
                     request.getExp(), request.getHp(), request.getMp(),
@@ -45,7 +45,7 @@ public class CharacterController {
     }
 
     @PostMapping("/{id}/level-up")
-    public R<CharacterData> levelUp(@PathVariable Long id) {
+    public R<CharacterData> levelUp(@PathVariable("id") Long id) {
         try {
             CharacterData character = characterService.levelUp(id);
             return R.ok(character);
@@ -55,7 +55,7 @@ public class CharacterController {
     }
 
     @PutMapping("/{id}/equipment")
-    public R<CharacterData> updateEquipment(@PathVariable Long id, @RequestBody UpdateEquipmentRequest request) {
+    public R<CharacterData> updateEquipment(@PathVariable("id") Long id, @RequestBody UpdateEquipmentRequest request) {
         try {
             CharacterData character = characterService.updateEquipment(id, request.getEquipment());
             return R.ok(character);
@@ -65,7 +65,7 @@ public class CharacterController {
     }
 
     @PutMapping("/{id}/skills")
-    public R<CharacterData> updateSkills(@PathVariable Long id, @RequestBody UpdateSkillsRequest request) {
+    public R<CharacterData> updateSkills(@PathVariable("id") Long id, @RequestBody UpdateSkillsRequest request) {
         try {
             CharacterData character = characterService.updateSkills(id, request.getSkills());
             return R.ok(character);
