@@ -14,288 +14,442 @@
             align-items: center;
             font-family: 'Microsoft YaHei', sans-serif;
         }
-        #game-header {
-            width: 800px;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            color: #ffd700;
-            border-bottom: 2px solid #8b4513;
-        }
-        #game-container {
-            width: 800px;
-            height: 480px;
-            border: 3px solid #8b4513;
-            box-shadow: 0 0 30px rgba(139, 69, 19, 0.5);
-        }
+        #game-header { width: 800px; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; color: #ffd700; border-bottom: 2px solid #8b4513; }
+        #game-header .title { font-size: 18px; }
+        #game-header .location { color: #c9a959; }
+        #game-container { width: 800px; height: 480px; border: 3px solid #8b4513; box-shadow: 0 0 30px rgba(139, 69, 19, 0.5); position: relative; }
         canvas { display: block; }
-        #controls-hint {
-            width: 800px;
-            padding: 15px;
-            color: #c9a959;
-            text-align: center;
-            font-size: 14px;
-        }
-        #controls-hint span {
-            margin: 0 15px;
-            padding: 5px 10px;
-            background: rgba(139, 69, 19, 0.3);
-            border-radius: 5px;
-        }
-        #error-msg {
-            color: #ff6b6b;
-            padding: 10px;
-            display: none;
-        }
+        #ui-overlay { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
+        
+        #status-bar { position: absolute; top: 10px; left: 10px; background: rgba(0,0,0,0.8); border: 2px solid #8b4513; border-radius: 8px; padding: 10px; min-width: 180px; pointer-events: auto; }
+        .status-row { display: flex; align-items: center; margin-bottom: 6px; color: #fff; font-size: 12px; }
+        .status-row:last-child { margin-bottom: 0; }
+        .status-label { width: 35px; color: #c9a959; }
+        .status-bar { flex: 1; height: 10px; background: #333; border-radius: 5px; overflow: hidden; margin: 0 8px; }
+        .status-bar-fill { height: 100%; transition: width 0.3s; }
+        .hp-fill { background: linear-gradient(90deg, #ff4444, #cc0000); }
+        .mp-fill { background: linear-gradient(90deg, #4444ff, #0000cc); }
+        .exp-fill { background: linear-gradient(90deg, #44ff44, #00cc00); }
+        .status-value { width: 70px; text-align: right; }
+        
+        #inventory-btn, #shop-btn { position: absolute; top: 10px; right: 10px; background: rgba(139, 69, 19, 0.8); border: 2px solid #ffd700; color: #ffd700; padding: 8px 15px; cursor: pointer; font-size: 12px; border-radius: 5px; pointer-events: auto; }
+        #shop-btn { right: 100px; }
+        #inventory-btn:hover, #shop-btn:hover { background: rgba(139, 69, 19, 1); }
+        
+        #dialogue-box { position: absolute; bottom: 20px; left: 20px; right: 20px; background: rgba(0,0,0,0.95); border: 3px solid #ffd700; border-radius: 10px; padding: 15px; display: none; pointer-events: auto; }
+        #dialogue-box.active { display: block; }
+        #dialogue-name { color: #ffd700; font-size: 16px; font-weight: bold; margin-bottom: 10px; }
+        #dialogue-text { color: #fff; font-size: 14px; line-height: 1.8; min-height: 40px; }
+        #dialogue-options { margin-top: 15px; display: flex; gap: 10px; flex-wrap: wrap; }
+        .dialogue-option { background: rgba(139, 69, 19, 0.8); border: 1px solid #8b4513; color: #c9a959; padding: 8px 20px; cursor: pointer; border-radius: 5px; font-size: 13px; }
+        .dialogue-option:hover { background: rgba(139, 69, 19, 1); border-color: #ffd700; color: #ffd700; }
+        #dialogue-hint { color: #888; font-size: 12px; margin-top: 10px; text-align: right; }
+        
+        #inventory-panel, #shop-panel { position: absolute; top: 50px; right: 10px; width: 250px; max-height: 400px; background: rgba(0,0,0,0.95); border: 2px solid #8b4513; border-radius: 10px; padding: 15px; display: none; pointer-events: auto; overflow-y: auto; }
+        #inventory-panel.active, #shop-panel.active { display: block; }
+        .panel-title { color: #ffd700; font-size: 16px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid #8b4513; }
+        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 8px; background: rgba(139, 69, 19, 0.3); border-radius: 5px; margin-bottom: 8px; }
+        .item-name { color: #fff; font-size: 13px; }
+        .item-qty { color: #c9a959; font-size: 12px; }
+        .item-use-btn { background: #8b0000; border: 1px solid #ffd700; color: #ffd700; padding: 4px 10px; cursor: pointer; border-radius: 3px; font-size: 11px; }
+        .item-use-btn:hover { background: #a00000; }
+        .shop-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(139, 69, 19, 0.3); border-radius: 5px; margin-bottom: 8px; }
+        .shop-item .price { color: #ffd700; font-size: 12px; }
+        .buy-btn { background: #006400; border: 1px solid #ffd700; color: #ffd700; padding: 5px 12px; cursor: pointer; border-radius: 3px; font-size: 12px; }
+        .buy-btn:hover { background: #008000; }
+        
+        #controls-hint { width: 800px; padding: 10px; color: #c9a959; text-align: center; font-size: 13px; }
+        #controls-hint span { margin: 0 10px; padding: 3px 8px; background: rgba(139, 69, 19, 0.3); border-radius: 3px; }
+        
+        #message-toast { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); border: 2px solid #ffd700; color: #ffd700; padding: 15px 30px; border-radius: 10px; font-size: 16px; display: none; pointer-events: none; }
+        #message-toast.show { display: block; animation: fadeInOut 2s; }
+        
+        @keyframes fadeInOut { 0% { opacity: 0; } 20% { opacity: 1; } 80% { opacity: 1; } 100% { opacity: 0; } }
     </style>
 </head>
 <body>
     <div id="game-header">
-        <div>封神榜 - 伏魔三太子</div>
-        <div id="location-name">加载中...</div>
+        <div class="title">封神榜 - 伏魔三太子</div>
+        <div class="location" id="location-name">陈塘关</div>
     </div>
     <div id="game-container">
-        <canvas id="game-canvas"></canvas>
+        <canvas id="game-canvas" width="800" height="480"></canvas>
+        <div id="ui-overlay">
+            <div id="status-bar">
+                <div class="status-row"><span class="status-label">哪吒</span></div>
+                <div class="status-row">
+                    <span class="status-label">HP</span>
+                    <div class="status-bar"><div class="status-bar-fill hp-fill" id="hp-bar" style="width: 100%"></div></div>
+                    <span class="status-value" id="hp-value">100/100</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">MP</span>
+                    <div class="status-bar"><div class="status-bar-fill mp-fill" id="mp-bar" style="width: 100%"></div></div>
+                    <span class="status-value" id="mp-value">50/50</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">EXP</span>
+                    <div class="status-bar"><div class="status-bar-fill exp-fill" id="exp-bar" style="width: 0%"></div></div>
+                    <span class="status-value" id="exp-value">0/100</span>
+                </div>
+                <div class="status-row" style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #8b4513;">
+                    <span class="status-label" style="width:30px">攻</span>
+                    <span class="status-value" id="atk-value" style="color:#ff6b6b">12</span>
+                    <span class="status-label" style="width:30px">防</span>
+                    <span class="status-value" id="def-value" style="color:#6bafff">6</span>
+                    <span class="status-label" style="width:30px">等</span>
+                    <span class="status-value" id="lv-value" style="color:#ffd700">1</span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label" style="width:30px">金</span>
+                    <span class="status-value" id="gold-value" style="color:#ffd700">0</span>
+                </div>
+            </div>
+            <button id="inventory-btn">背包</button>
+            <button id="shop-btn">商店</button>
+            <div id="dialogue-box">
+                <div id="dialogue-name"></div>
+                <div id="dialogue-text"></div>
+                <div id="dialogue-options"></div>
+                <div id="dialogue-hint">按空格键继续...</div>
+            </div>
+            <div id="inventory-panel"><div class="panel-title">背包</div><div id="inventory-list"></div></div>
+            <div id="shop-panel"><div class="panel-title">商店</div><div id="shop-list"></div></div>
+            <div id="message-toast"></div>
+        </div>
     </div>
     <div id="controls-hint">
         <span>↑↓←→ 或 WASD 移动</span>
-        <span>空格键 与NPC对话</span>
+        <span>空格 交互</span>
+        <span>I 背包</span>
+        <span>O 商店</span>
     </div>
-    <div id="error-msg"></div>
 
     <script src="js/game/MapData.js"></script>
     <script>
     (function() {
-        try {
-            var canvas = document.getElementById('game-canvas');
-            canvas.width = 800;
-            canvas.height = 480;
-            var ctx = canvas.getContext('2d');
+        var canvas = document.getElementById('game-canvas');
+        canvas.width = 800;
+        canvas.height = 480;
+        var ctx = canvas.getContext('2d');
+        
+        var keys = {};
+        window.addEventListener('keydown', function(e) {
+            keys[e.key] = true;
+            if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' ','i','I','o','O'].indexOf(e.key) >= 0) e.preventDefault();
+            if(e.key === 'i' || e.key === 'I') toggleInventory();
+            if(e.key === 'o' || e.key === 'O') toggleShop();
+        });
+        window.addEventListener('keyup', function(e) { keys[e.key] = false; });
+        
+        document.getElementById('inventory-btn').addEventListener('click', toggleInventory);
+        document.getElementById('shop-btn').addEventListener('click', toggleShop);
+        
+        var TILE_SIZE = 32;
+        var tileColors = {0: '#2d5a27', 1: '#8b4513', 2: '#4682b4', 3: '#808080', 4: '#1a1a1a', 5: '#8b0000', 8: '#228b22', 9: '#daa520'};
+        
+        var player = { name: '哪吒', level: 1, exp: 0, expToLevel: 100, hp: 100, maxHp: 100, mp: 50, maxMp: 50, attack: 12, defense: 6, gold: 50,
+            inventory: [{id: 'herb', name: '药草', qty: 3, type: 'consumable', effect: 'heal', value: 30}, {id: 'niu_huang_wan', name: '牛黄丸', qty: 1, type: 'consumable', effect: 'heal', value: 80}],
+            equipment: { weapon: null, armor: null }};
+        
+        var shopItems = [
+            {id: 'herb', name: '药草', price: 10, type: 'consumable', effect: 'heal', value: 30},
+            {id: 'niu_huang_wan', name: '牛黄丸', price: 50, type: 'consumable', effect: 'heal', value: 80},
+            {id: 'liu_shen_wan', name: '六神丸', price: 200, type: 'consumable', effect: 'heal', value: 200},
+            {id: 'tie_jian', name: '铁剑', price: 300, type: 'weapon', attack: 8},
+            {id: 'pi_jia', name: '皮甲', price: 200, type: 'armor', defense: 5}
+        ];
+        
+        var treasureData = {
+            'chen_tang_guan': [{x: 3, y: 3, opened: false, item: {id: 'herb', name: '药草', qty: 2}}],
+            'chen_tang_wai': [{x: 5, y: 5, opened: false, item: {id: 'niu_huang_wan', name: '牛黄丸', qty: 1}}, {x: 20, y: 8, opened: false, item: {id: 'tie_jian', name: '铁剑', type: 'weapon', attack: 8}}]
+        };
+        
+        function showMessage(text) {
+            var toast = document.getElementById('message-toast');
+            toast.textContent = text;
+            toast.classList.remove('show');
+            void toast.offsetWidth;
+            toast.classList.add('show');
+        }
+        
+        function updateStatusUI() {
+            document.getElementById('hp-bar').style.width = (player.hp / player.maxHp * 100) + '%';
+            document.getElementById('hp-value').textContent = player.hp + '/' + player.maxHp;
+            document.getElementById('mp-bar').style.width = (player.mp / player.maxMp * 100) + '%';
+            document.getElementById('mp-value').textContent = player.mp + '/' + player.maxMp;
+            document.getElementById('exp-bar').style.width = (player.exp / player.expToLevel * 100) + '%';
+            document.getElementById('exp-value').textContent = player.exp + '/' + player.expToLevel;
+            document.getElementById('atk-value').textContent = player.attack;
+            document.getElementById('def-value').textContent = player.defense;
+            document.getElementById('lv-value').textContent = player.level;
+            document.getElementById('gold-value').textContent = player.gold;
+        }
+        
+        function toggleInventory() {
+            var panel = document.getElementById('inventory-panel');
+            panel.classList.toggle('active');
+            if(panel.classList.contains('active')) renderInventory();
+        }
+        
+        function toggleShop() {
+            var panel = document.getElementById('shop-panel');
+            panel.classList.toggle('active');
+            if(panel.classList.contains('active')) renderShop();
+        }
+        
+        function renderInventory() {
+            var list = document.getElementById('inventory-list');
+            if(player.inventory.length === 0) {
+                list.innerHTML = '<div style="color:#888;text-align:center;padding:20px;">背包为空</div>';
+                return;
+            }
+            list.innerHTML = player.inventory.map(function(item, idx) {
+                var useBtn = item.type === 'consumable' ? '<button class="item-use-btn" onclick="useItem(' + idx + ')">使用</button>' : '';
+                return '<div class="item-row"><span class="item-name">' + item.name + '</span><span class="item-qty">x' + item.qty + '</span>' + useBtn + '</div>';
+            }).join('');
+        }
+        
+        window.useItem = function(idx) {
+            var item = player.inventory[idx];
+            if(!item) return;
+            if(item.type === 'consumable') {
+                if(item.effect === 'heal') {
+                    var oldHp = player.hp;
+                    player.hp = Math.min(player.maxHp, player.hp + item.value);
+                    showMessage('恢复 ' + (player.hp - oldHp) + ' HP!');
+                }
+                item.qty--;
+                if(item.qty <= 0) player.inventory.splice(idx, 1);
+                renderInventory();
+                updateStatusUI();
+            }
+        };
+        
+        function renderShop() {
+            var list = document.getElementById('shop-list');
+            list.innerHTML = shopItems.map(function(item) {
+                var stats = item.attack ? ' 攻击+' + item.attack : (item.defense ? ' 防御+' + item.defense : '');
+                return '<div class="shop-item"><span class="item-name">' + item.name + stats + '</span><span class="price">' + item.price + '金</span><button class="buy-btn" onclick="buyItem(\'' + item.id + '\')">购买</button></div>';
+            }).join('');
+        }
+        
+        window.buyItem = function(itemId) {
+            var shopItem = shopItems.find(function(i) { return i.id === itemId; });
+            if(!shopItem) return;
+            if(player.gold < shopItem.price) { showMessage('金币不足!'); return; }
+            player.gold -= shopItem.price;
+            var existItem = player.inventory.find(function(i) { return i.id === itemId; });
+            if(existItem) { existItem.qty++; }
+            else {
+                player.inventory.push({id: shopItem.id, name: shopItem.name, qty: 1, type: shopItem.type, effect: shopItem.effect, value: shopItem.value, attack: shopItem.attack, defense: shopItem.defense});
+            }
+            showMessage('购买了 ' + shopItem.name + '!');
+            renderShop();
+            updateStatusUI();
+        };
+        
+        var dialogueData = {
+            'chen_tang_guan': {
+                'old_man': {name: '老者', lines: ['年轻人，你可是要去降妖除魔？', '这陈塘关最近有些不太平啊...', '城外经常有妖怪出没，你要小心。'], options: [{text: '我要去降妖!', action: function(){ showMessage('老者点了点头'); }}]},
+                'merchant': {name: '商人', lines: ['客官要买点什么？', '我这里有上好的药草！'], options: [{text: '打开商店', action: toggleShop}]},
+                'guard': {name: '守卫', lines: ['陈塘关欢迎你！', '出了南门就是野外了。'], options: []}
+            }
+        };
+        
+        var currentMapId = 'chen_tang_guan';
+        var currentMap = MapData[currentMapId].tiles;
+        var npcs = MapData[currentMapId].npcs || [];
+        var exits = MapData[currentMapId].exits || [];
+        var gamePlayer = { x: 12 * 32, y: 10 * 32, dir: 'down', moving: false };
+        var camera = { x: 0, y: 0 };
+        var dialogue = null;
+        var lastTime = 0;
+        
+        function drawTile(offsetX, offsetY, type) {
+            var color = tileColors[type] || tileColors[0];
+            ctx.fillStyle = color;
+            ctx.fillRect(offsetX, offsetY, TILE_SIZE, TILE_SIZE);
+            ctx.strokeStyle = 'rgba(0,0,0,0.2)';
+            ctx.strokeRect(offsetX, offsetY, TILE_SIZE, TILE_SIZE);
+            if(type === 0) { ctx.fillStyle = '#1a4a14'; for(var i=0; i<3; i++) ctx.fillRect(offsetX + 5 + Math.random()*20, offsetY + 5 + Math.random()*20, 2, 4); }
+            else if(type === 5) { ctx.fillStyle = '#ffd700'; ctx.beginPath(); ctx.arc(offsetX + 16, offsetY + 16, 6, 0, Math.PI*2); ctx.fill(); }
+        }
+        
+        function drawNPC(npc, offsetX, offsetY) {
+            ctx.fillStyle = npc.color || '#ff69b4';
+            ctx.beginPath(); ctx.arc(offsetX + 16, offsetY + 16, 12, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#fff';
+            ctx.beginPath(); ctx.arc(offsetX + 12, offsetY + 14, 2, 0, Math.PI * 2); ctx.arc(offsetX + 20, offsetY + 14, 2, 0, Math.PI * 2); ctx.fill();
+        }
+        
+        function drawTreasure(treasure, offsetX, offsetY) {
+            if(treasure.opened) { ctx.fillStyle = '#444'; ctx.fillRect(offsetX + 8, offsetY + 20, 16, 12); }
+            else { ctx.fillStyle = '#daa520'; ctx.fillRect(offsetX + 6, offsetY + 10, 20, 22); ctx.fillStyle = '#ffd700'; ctx.beginPath(); ctx.arc(offsetX + 16, offsetY + 18, 3, 0, Math.PI*2); ctx.fill(); }
+        }
+        
+        function drawPlayer(px, py, dir, moving, frame) {
+            var bob = moving ? Math.sin(frame * Math.PI / 2) * 2 : 0;
+            var screenX = px - camera.x;
+            var screenY = py - camera.y;
+            ctx.fillStyle = '#8b4513'; ctx.beginPath(); ctx.ellipse(screenX + 16, screenY + 44 - bob, 12, 6, 0, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#cc0000'; ctx.beginPath(); ctx.arc(screenX + 16, screenY + 14 - bob, 10, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#ffe4c4'; ctx.beginPath(); ctx.arc(screenX + 16, screenY + 8 - bob, 8, 0, Math.PI * 2); ctx.fill();
+            ctx.fillStyle = '#000';
+            var eyeOff = 0; if(dir === 'left') eyeOff = -2; if(dir === 'right') eyeOff = 2;
+            if(dir !== 'up') { ctx.beginPath(); ctx.arc(screenX + 13 + eyeOff, screenY + 7 - bob, 1.5, 0, Math.PI * 2); ctx.arc(screenX + 19 + eyeOff, screenY + 7 - bob, 1.5, 0, Math.PI * 2); ctx.fill(); }
+            ctx.fillStyle = '#cc0000'; ctx.fillRect(screenX + 4, screenY + 22 - bob, 24, 20);
+            var legOff = moving ? Math.sin(frame * Math.PI / 2) * 4 : 0;
+            ctx.fillStyle = '#8b4513'; ctx.fillRect(screenX + 8, screenY + 40 - bob, 6, 8 + legOff*0.5); ctx.fillRect(screenX + 18, screenY + 40 - bob, 6, 8 - legOff*0.5);
+        }
+        
+        function isBlocked(tx, ty) {
+            if(tx < 0 || tx >= currentMap[0].length || ty < 0 || ty >= currentMap.length) return true;
+            var tile = currentMap[ty][tx];
+            return tile === 1 || tile === 2 || tile === 4 || tile === 8;
+        }
+        
+        function update(dt) {
+            if(dialogue) {
+                if(keys[' '] || keys['Enter']) {
+                    dialogue.index++;
+                    if(dialogue.index >= dialogue.lines.length) closeDialogue();
+                    else showDialogueText();
+                }
+                return;
+            }
+            if(document.getElementById('inventory-panel').classList.contains('active') || document.getElementById('shop-panel').classList.contains('active')) return;
             
-            var keys = {};
-            window.addEventListener('keydown', function(e) {
-                keys[e.key] = true;
-                if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight',' '].indexOf(e.key) >= 0) e.preventDefault();
-            });
-            window.addEventListener('keyup', function(e) { keys[e.key] = false; });
+            var dx = 0, dy = 0, speed = 3;
+            if(keys['ArrowUp'] || keys['w'] || keys['W']) { dy = -speed; gamePlayer.dir = 'up'; }
+            if(keys['ArrowDown'] || keys['s'] || keys['S']) { dy = speed; gamePlayer.dir = 'down'; }
+            if(keys['ArrowLeft'] || keys['a'] || keys['A']) { dx = -speed; gamePlayer.dir = 'left'; }
+            if(keys['ArrowRight'] || keys['d'] || keys['D']) { dx = speed; gamePlayer.dir = 'right'; }
+            if(dx !== 0 && dy !== 0) { dx *= 0.707; dy *= 0.707; }
+            gamePlayer.moving = dx !== 0 || dy !== 0;
             
-            var TILE_SIZE = 32;
-            
-            var tileColors = {
-                0: '#2d5a27', 1: '#8b4513', 2: '#4682b4', 3: '#808080', 
-                4: '#1a1a1a', 5: '#8b0000', 8: '#228b22'
-            };
-            
-            function drawTile(offsetX, offsetY, type) {
-                var color = tileColors[type] || tileColors[0];
-                ctx.fillStyle = color;
-                ctx.fillRect(offsetX, offsetY, TILE_SIZE, TILE_SIZE);
-                ctx.strokeStyle = 'rgba(0,0,0,0.2)';
-                ctx.strokeRect(offsetX, offsetY, TILE_SIZE, TILE_SIZE);
-                
-                if(type === 0) {
-                    ctx.fillStyle = '#1a4a14';
-                    for(var i=0; i<3; i++) {
-                        ctx.fillRect(offsetX + 5 + Math.random()*20, offsetY + 5 + Math.random()*20, 2, 4);
-                    }
+            if(gamePlayer.moving) {
+                var newX = gamePlayer.x + dx, newY = gamePlayer.y + dy;
+                var tx = Math.floor((newX + 16) / TILE_SIZE), ty = Math.floor((newY + 40) / TILE_SIZE);
+                if(!isBlocked(tx, ty)) gamePlayer.x = newX;
+                var tx2 = Math.floor((gamePlayer.x + 16) / TILE_SIZE), ty2 = Math.floor((newY + 40) / TILE_SIZE);
+                if(!isBlocked(tx2, ty2)) gamePlayer.y = newY;
+                checkExits(); checkTreasures(); checkNPCs();
+            }
+            var targetX = gamePlayer.x - 400 + 16, targetY = gamePlayer.y - 240 + 24;
+            camera.x += (targetX - camera.x) * 0.1;
+            camera.y += (targetY - camera.y) * 0.1;
+            camera.x = Math.max(0, Math.min(camera.x, currentMap[0].length * TILE_SIZE - 800));
+            camera.y = Math.max(0, Math.min(camera.y, currentMap.length * TILE_SIZE - 480));
+        }
+        
+        function checkExits() {
+            var ptx = Math.floor((gamePlayer.x + 16) / TILE_SIZE), pty = Math.floor((gamePlayer.y + 40) / TILE_SIZE);
+            for(var i=0; i<exits.length; i++) {
+                var ex = exits[i];
+                if(ptx === ex.x && pty === ex.y) {
+                    currentMapId = ex.targetMap;
+                    currentMap = MapData[currentMapId].tiles;
+                    npcs = MapData[currentMapId].npcs || [];
+                    exits = MapData[currentMapId].exits || [];
+                    gamePlayer.x = ex.targetX * TILE_SIZE;
+                    gamePlayer.y = ex.targetY * TILE_SIZE;
+                    document.getElementById('location-name').textContent = MapData[currentMapId].name;
+                    break;
                 }
             }
-            
-            function drawNPC(npc, offsetX, offsetY) {
-                ctx.fillStyle = npc.color || '#ff69b4';
-                ctx.beginPath();
-                ctx.arc(offsetX + 16, offsetY + 16, 12, 0, Math.PI * 2);
-                ctx.fill();
-                ctx.fillStyle = '#fff';
-                ctx.beginPath();
-                ctx.arc(offsetX + 12, offsetY + 14, 2, 0, Math.PI * 2);
-                ctx.arc(offsetX + 20, offsetY + 14, 2, 0, Math.PI * 2);
-                ctx.fill();
-            }
-            
-            function drawPlayer(px, py, dir, moving, frame) {
-                var bob = moving ? Math.sin(frame * Math.PI / 2) * 2 : 0;
-                var screenX = px - camera.x;
-                var screenY = py - camera.y;
-                
-                ctx.fillStyle = '#8b4513';
-                ctx.beginPath();
-                ctx.ellipse(screenX + 16, screenY + 44 - bob, 12, 6, 0, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.fillStyle = '#cc0000';
-                ctx.beginPath();
-                ctx.arc(screenX + 16, screenY + 14 - bob, 10, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.fillStyle = '#ffe4c4';
-                ctx.beginPath();
-                ctx.arc(screenX + 16, screenY + 8 - bob, 8, 0, Math.PI * 2);
-                ctx.fill();
-                
-                ctx.fillStyle = '#000';
-                var eyeOff = 0;
-                if(dir === 'left') eyeOff = -2;
-                if(dir === 'right') eyeOff = 2;
-                if(dir !== 'up') {
-                    ctx.beginPath();
-                    ctx.arc(screenX + 13 + eyeOff, screenY + 7 - bob, 1.5, 0, Math.PI * 2);
-                    ctx.arc(screenX + 19 + eyeOff, screenY + 7 - bob, 1.5, 0, Math.PI * 2);
-                    ctx.fill();
+        }
+        
+        function checkTreasures() {
+            if(!treasureData[currentMapId]) return;
+            var ptx = Math.floor((gamePlayer.x + 16) / TILE_SIZE), pty = Math.floor((gamePlayer.y + 40) / TILE_SIZE);
+            var treasures = treasureData[currentMapId];
+            for(var i=0; i<treasures.length; i++) {
+                var t = treasures[i];
+                if(!t.opened && ptx === t.x && pty === t.y) {
+                    t.opened = true;
+                    var item = t.item;
+                    var existItem = player.inventory.find(function(ii) { return ii.id === item.id; });
+                    if(existItem) { existItem.qty += item.qty || 1; }
+                    else { player.inventory.push({id: item.id, name: item.name, qty: item.qty || 1, type: item.type || 'consumable', effect: item.effect, value: item.value, attack: item.attack, defense: item.defense}); }
+                    if(item.type === 'weapon') { player.attack += item.attack; showMessage('获得武器 ' + item.name + ' (攻击+' + item.attack + ')'); }
+                    else if(item.type === 'armor') { player.defense += item.defense; showMessage('获得防具 ' + item.name + ' (防御+' + item.defense + ')'); }
+                    else { showMessage('获得物品 ' + item.name + ' x' + (item.qty || 1)); }
+                    updateStatusUI();
+                    break;
                 }
-                
-                ctx.fillStyle = '#cc0000';
-                ctx.fillRect(screenX + 4, screenY + 22 - bob, 24, 20);
-                
-                var legOff = moving ? Math.sin(frame * Math.PI / 2) * 4 : 0;
-                ctx.fillStyle = '#8b4513';
-                ctx.fillRect(screenX + 8, screenY + 40 - bob, 6, 8 + legOff*0.5);
-                ctx.fillRect(screenX + 18, screenY + 40 - bob, 6, 8 - legOff*0.5);
             }
-            
-            function isBlocked(tx, ty) {
-                if(tx < 0 || tx >= currentMap[0].length || ty < 0 || ty >= currentMap.length) return true;
-                var tile = currentMap[ty][tx];
-                return tile === 1 || tile === 2 || tile === 4 || tile === 8;
-            }
-            
-            var currentMapId = 'chen_tang_guan';
-            var currentMap = MapData[currentMapId].tiles;
-            var npcs = MapData[currentMapId].npcs || [];
-            var exits = MapData[currentMapId].exits || [];
-            
-            var player = { x: 12 * 32, y: 10 * 32, dir: 'down', moving: false };
-            var camera = { x: 0, y: 0 };
-            var dialogue = null;
-            var lastTime = 0;
-            
-            function update(dt) {
-                if(dialogue) {
-                    if(keys[' '] || keys['Enter']) {
-                        dialogue.index++;
-                        if(dialogue.index >= dialogue.lines.length) dialogue = null;
-                    }
-                    return;
-                }
-                
-                var dx = 0, dy = 0;
-                var speed = 3;
-                
-                if(keys['ArrowUp'] || keys['w'] || keys['W']) { dy = -speed; player.dir = 'up'; }
-                if(keys['ArrowDown'] || keys['s'] || keys['S']) { dy = speed; player.dir = 'down'; }
-                if(keys['ArrowLeft'] || keys['a'] || keys['A']) { dx = -speed; player.dir = 'left'; }
-                if(keys['ArrowRight'] || keys['d'] || keys['D']) { dx = speed; player.dir = 'right'; }
-                
-                if(dx !== 0 && dy !== 0) { dx *= 0.707; dy *= 0.707; }
-                player.moving = dx !== 0 || dy !== 0;
-                
-                if(player.moving) {
-                    var newX = player.x + dx;
-                    var newY = player.y + dy;
-                    var tx = Math.floor((newX + 16) / TILE_SIZE);
-                    var ty = Math.floor((newY + 40) / TILE_SIZE);
-                    if(!isBlocked(tx, ty)) player.x = newX;
-                    var tx2 = Math.floor((player.x + 16) / TILE_SIZE);
-                    var ty2 = Math.floor((newY + 40) / TILE_SIZE);
-                    if(!isBlocked(tx2, ty2)) player.y = newY;
-                    
-                    var ptx = Math.floor((player.x + 16) / TILE_SIZE);
-                    var pty = Math.floor((player.y + 40) / TILE_SIZE);
-                    for(var i=0; i<exits.length; i++) {
-                        var ex = exits[i];
-                        if(ptx === ex.x && pty === ex.y) {
-                            currentMapId = ex.targetMap;
-                            currentMap = MapData[currentMapId].tiles;
-                            npcs = MapData[currentMapId].npcs || [];
-                            exits = MapData[currentMapId].exits || [];
-                            player.x = ex.targetX * TILE_SIZE;
-                            player.y = ex.targetY * TILE_SIZE;
-                            document.getElementById('location-name').textContent = MapData[currentMapId].name;
-                            break;
-                        }
-                    }
-                }
-                
-                var targetX = player.x - 400 + 16;
-                var targetY = player.y - 240 + 24;
-                camera.x += (targetX - camera.x) * 0.1;
-                camera.y += (targetY - camera.y) * 0.1;
-                camera.x = Math.max(0, Math.min(camera.x, currentMap[0].length * TILE_SIZE - 800));
-                camera.y = Math.max(0, Math.min(camera.y, currentMap.length * TILE_SIZE - 480));
-            }
-            
-            var frameCount = 0;
-            function render() {
-                ctx.fillStyle = '#1a0a0a';
-                ctx.fillRect(0, 0, 800, 480);
-                
-                var startX = Math.floor(camera.x / TILE_SIZE);
-                var startY = Math.floor(camera.y / TILE_SIZE);
-                var endX = Math.min(startX + 27, currentMap[0].length);
-                var endY = Math.min(startY + 16, currentMap.length);
-                
-                for(var y = Math.max(0, startY); y < endY; y++) {
-                    for(var x = Math.max(0, startX); x < endX; x++) {
-                        drawTile(x * TILE_SIZE - camera.x, y * TILE_SIZE - camera.y, currentMap[y][x]);
-                    }
-                }
-                
+        }
+        
+        function checkNPCs() {
+            if(keys[' ']) {
+                var ptx = Math.floor((gamePlayer.x + 16) / TILE_SIZE), pty = Math.floor((gamePlayer.y + 40) / TILE_SIZE);
                 for(var i=0; i<npcs.length; i++) {
                     var npc = npcs[i];
-                    drawNPC(npc, npc.x * TILE_SIZE - camera.x, npc.y * TILE_SIZE - camera.y);
+                    var dist = Math.abs(npc.x - ptx) + Math.abs(npc.y - pty);
+                    if(dist <= 1) { openDialogue(npc); keys[' '] = false; break; }
                 }
-                
-                drawPlayer(player.x, player.y, player.dir, player.moving, frameCount);
-                
-                ctx.fillStyle = 'rgba(0,0,0,0.7)';
-                ctx.fillRect(10, 10, 120, 45);
-                ctx.strokeStyle = '#ffd700';
-                ctx.strokeRect(10, 10, 120, 45);
-                ctx.fillStyle = '#ffd700';
-                ctx.font = '14px Microsoft YaHei';
-                ctx.fillText(MapData[currentMapId].name, 20, 30);
-                ctx.fillStyle = '#fff';
-                ctx.font = '12px Microsoft YaHei';
-                ctx.fillText('等级: 1', 20, 48);
-                
-                if(dialogue) {
-                    var boxY = 360;
-                    ctx.fillStyle = 'rgba(0,0,0,0.9)';
-                    ctx.fillRect(20, boxY, 760, 100);
-                    ctx.strokeStyle = '#ffd700';
-                    ctx.lineWidth = 2;
-                    ctx.strokeRect(20, boxY, 760, 100);
-                    ctx.fillStyle = '#ffd700';
-                    ctx.font = 'bold 14px Microsoft YaHei';
-                    ctx.fillText(dialogue.name, 40, boxY + 25);
-                    ctx.fillStyle = '#fff';
-                    ctx.font = '14px Microsoft YaHei';
-                    ctx.fillText(dialogue.lines[dialogue.index], 40, boxY + 55);
-                    ctx.fillStyle = '#888';
-                    ctx.font = '12px Microsoft YaHei';
-                    ctx.fillText('按空格键继续...', 650, boxY + 85);
-                }
-                
-                frameCount++;
             }
-            
-            function gameLoop(time) {
-                var dt = time - lastTime;
-                lastTime = time;
-                update(dt);
-                render();
-                requestAnimationFrame(gameLoop);
-            }
-            
-            document.getElementById('location-name').textContent = MapData[currentMapId].name;
-            requestAnimationFrame(gameLoop);
-            
-        } catch(e) {
-            document.getElementById('error-msg').style.display = 'block';
-            document.getElementById('error-msg').textContent = 'Error: ' + e.message;
-            console.error(e);
         }
+        
+        function openDialogue(npc) {
+            var data = dialogueData[currentMapId] && dialogueData[currentMapId][npc.id];
+            if(!data) data = { name: npc.name, lines: npc.dialogue || ['...'], options: [] };
+            dialogue = { npc: npc, name: data.name, lines: data.lines, options: data.options || [], index: 0 };
+            var box = document.getElementById('dialogue-box');
+            box.classList.add('active');
+            showDialogueText();
+        }
+        
+        function showDialogueText() {
+            document.getElementById('dialogue-name').textContent = dialogue.name;
+            document.getElementById('dialogue-text').textContent = dialogue.lines[dialogue.index];
+            var optionsDiv = document.getElementById('dialogue-options');
+            optionsDiv.innerHTML = '';
+            if(dialogue.index >= dialogue.lines.length - 1 && dialogue.options.length > 0) {
+                dialogue.options.forEach(function(opt) {
+                    var btn = document.createElement('div');
+                    btn.className = 'dialogue-option';
+                    btn.textContent = opt.text;
+                    btn.onclick = function() { opt.action(); closeDialogue(); };
+                    optionsDiv.appendChild(btn);
+                });
+            }
+            document.getElementById('dialogue-hint').style.display = (dialogue.index >= dialogue.lines.length - 1 && dialogue.options.length > 0) ? 'none' : 'block';
+        }
+        
+        function closeDialogue() { dialogue = null; document.getElementById('dialogue-box').classList.remove('active'); }
+        
+        var frameCount = 0;
+        function render() {
+            ctx.fillStyle = '#1a0a0a'; ctx.fillRect(0, 0, 800, 480);
+            var startX = Math.floor(camera.x / TILE_SIZE), startY = Math.floor(camera.y / TILE_SIZE);
+            var endX = Math.min(startX + 27, currentMap[0].length), endY = Math.min(startY + 16, currentMap.length);
+            for(var y = Math.max(0, startY); y < endY; y++) for(var x = Math.max(0, startX); x < endX; x++) drawTile(x * TILE_SIZE - camera.x, y * TILE_SIZE - camera.y, currentMap[y][x]);
+            var treasures = treasureData[currentMapId] || [];
+            for(var i=0; i<treasures.length; i++) {
+                var t = treasures[i];
+                if(t.x >= startX && t.x < endX && t.y >= startY && t.y < endY) drawTreasure(t, t.x * TILE_SIZE - camera.x, t.y * TILE_SIZE - camera.y);
+            }
+            for(var i=0; i<npcs.length; i++) {
+                var npc = npcs[i];
+                if(npc.x >= startX && npc.x < endX && npc.y >= startY && npc.y < endY) drawNPC(npc, npc.x * TILE_SIZE - camera.x, npc.y * TILE_SIZE - camera.y);
+            }
+            drawPlayer(gamePlayer.x, gamePlayer.y, gamePlayer.dir, gamePlayer.moving, frameCount);
+            frameCount++;
+        }
+        
+        function gameLoop(time) {
+            var dt = time - lastTime;
+            lastTime = time;
+            update(dt);
+            render();
+            requestAnimationFrame(gameLoop);
+        }
+        
+        document.getElementById('location-name').textContent = MapData[currentMapId].name;
+        updateStatusUI();
+        requestAnimationFrame(gameLoop);
     })();
     </script>
 </body>
