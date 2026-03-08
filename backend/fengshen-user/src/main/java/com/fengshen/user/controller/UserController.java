@@ -3,8 +3,6 @@ package com.fengshen.user.controller;
 import com.fengshen.common.domain.R;
 import com.fengshen.user.entity.User;
 import com.fengshen.user.service.UserService;
-import lombok.Data;
-import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
@@ -12,10 +10,13 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
-@RequiredArgsConstructor
 public class UserController {
 
     private final UserService userService;
+
+    public UserController(UserService userService) {
+        this.userService = userService;
+    }
 
     @PostMapping("/register")
     public R<Map<String, Object>> register(@RequestBody RegisterRequest request) {
@@ -45,15 +46,45 @@ public class UserController {
         return R.ok(user);
     }
 
-    @Data
     public static class RegisterRequest {
         private String username;
         private String password;
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
     }
 
-    @Data
     public static class LoginRequest {
         private String username;
         private String password;
+
+        public String getUsername() {
+            return username;
+        }
+
+        public void setUsername(String username) {
+            this.username = username;
+        }
+
+        public String getPassword() {
+            return password;
+        }
+
+        public void setPassword(String password) {
+            this.password = password;
+        }
     }
 }
