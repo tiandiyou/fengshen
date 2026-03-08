@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>封神榜 - 游戏</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            background: linear-gradient(135deg, #1a0a0a 0%, #2d1810 50%, #1a0a0a 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            font-family: 'Microsoft YaHei', sans-serif;
+        }
+        #game-header {
+            width: 800px;
+            padding: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #ffd700;
+            border-bottom: 2px solid #8b4513;
+        }
+        #game-container {
+            position: relative;
+            width: 800px;
+            height: 480px;
+            border: 3px solid #8b4513;
+            box-shadow: 0 0 30px rgba(139, 69, 19, 0.5);
+        }
+        #game-canvas {
+            display: block;
+            background: #1a1a1a;
+        }
+        #controls-hint {
+            width: 800px;
+            padding: 15px;
+            color: #c9a959;
+            text-align: center;
+            font-size: 14px;
+        }
+        #controls-hint span {
+            margin: 0 15px;
+            padding: 5px 10px;
+            background: rgba(139, 69, 19, 0.3);
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-header">
+        <div>封神榜 - 伏魔三太子</div>
+        <div id="location-name">陈塘关</div>
+    </div>
+    <div id="game-container">
+        <canvas id="game-canvas" width="800" height="480"></canvas>
+    </div>
+    <div id="controls-hint">
+        <span>↑↓←→ 或 WASD 移动</span>
+        <span>空格键 与NPC对话</span>
+        <span>ESC 返回菜单</span>
+    </div>
+
+    <script src="js/game/GameEngine.js"></script>
+    <script src="js/game/Sprite.js"></script>
+    <script src="js/game/TileMap.js"></script>
+    <script src="js/game/MapData.js"></script>
+    <script src="js/game/PlayerController.js"></script>
+    <script>
+        class GameScene {
+            constructor() {
+                this.engine = null;
+                this.map = null;
+                this.player = null;
+                this.camera = { x: 0, y: 0 };
+                this.dialogue = null;
+            }
+
+            init(engine) {
+                this.engine = engine;
+                this.player = new NeZhaSprite({
+                    id: 'player',
+                    name: '哪吒',
+                    x: 12 * 32,
+                    y: 10 * 32
+                });
+                this.playerController = new PlayerController(this.player, engine);
+                this.loadMap('chen_tang_guan');
+            }
+
+            loadMap(mapId) {
+                const mapConfig = MapData[mapId];
+                if (mapConfig) {
+                    this.map = new TileMap(mapConfig);
+                    document.getElementById('location-name').textContent = this.map.name;
+                }
+            }
+
+            changeMap(mapId, targetX, targetY) {
+                this.loadMap(mapId);
+                this.player.x = targetX * 32;
+                this.player.y = targetY * 32;
+            }
+
+            update(dt) {
+                if (this.dialogue) {
+                    if (this.engine.isKeyPressed(' ') || this.engine.isKeyPressed('Enter')) {
+                        this.dialogue.index++;
+                        if (this.dialogue.index >= this.dialogue.lines.length) {
+                            this.dialogue = null;
+                        }
+                    }
+                    return;
+                }
+
+                this.playerController.update(dt, this.map);
+                this.player.update(dt, this.map);
+                this.updateCamera();
+            }
+
+            updateCamera() {
+                const targetX = this.player.x - this.engine.width / 2 + 16;
+                const targetY = this.player.y - this.engine.height / 2 + 24;
+                this.camera.x += (targetX - this.camera.x) * 0.1;
+                this.camera.y += (targetY - this.camera.y) * 0.1;
+                const maxCameraX = this.map.width * this.map.tileSize - this.engine.width;
+                const maxCameraY = this.map.height * this.map.tileSize - this.engine.height;
+                this.camera.x = Math.max(0, Math.min(this.camera.x, maxCameraX));
+                this.camera.y = Math.max(0, Math.min(this.camera.y, maxCameraY));
+            }
+
+            render(ctx) {
+                if (!this.map) return;
+                this.map.render(ctx, this.camera.x, this.camera.y);
+                this.player.render(ctx, this.camera.x, this.camera.y);
+                this.renderUI(ctx);
+                if (this.dialogue) this.renderDialogue(ctx);
+            }
+
+            renderUI(ctx) {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(10, 10, 120, 45);
+                ctx.strokeStyle = '#ffd700';
+                ctx.strokeRect(10, 10, 120, 45);
+                ctx.fillStyle = '#ffd700';
+                ctx.font = '14px Microsoft YaHei';
+                ctx.fillText(this.map.name, 20, 30);
+                ctx.fillStyle = '#fff';
+                ctx.font = '12px Microsoft YaHei';
+                ctx.fillText('等级: 1', 20, 48);
+            }
+
+            renderDialogue(ctx) {
+                const boxY = this.engine.height - 120;
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.9)';
+                ctx.fillRect(20, boxY, this.engine.width - 40, 100);
+                ctx.strokeStyle = '#ffd700';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(20, boxY, this.engine.width - 40, 100);
+                ctx.fillStyle = '#ffd700';
+                ctx.font = 'bold 14px Microsoft YaHei';
+                ctx.fillText(this.dialogue.name, 40, boxY + 25);
+                ctx.fillStyle = '#fff';
+                ctx.font = '14px Microsoft YaHei';
+                ctx.fillText(this.dialogue.lines[this.dialogue.index], 40, boxY + 55);
+                ctx.fillStyle = '#888';
+                ctx.font = '12px Microsoft YaHei';
+                ctx.fillText('按空格键继续...', this.engine.width - 130, boxY + 85);
+            }
+
+            showDialogue(npc) {
+                this.dialogue = { name: npc.name, lines: npc.dialogue || ['...'], index: 0 };
+            }
+        }
+
+        const engine = new GameEngine('game-canvas');
+        const scene = new GameScene();
+        engine.setScene(scene);
+        engine.start();
+    </script>
+</body>
+</html>
